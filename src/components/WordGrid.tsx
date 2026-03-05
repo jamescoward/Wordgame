@@ -4,9 +4,10 @@ import '../styles/wordGrid.css'
 interface WordGridProps {
   words: string[]
   foundWords: string[]
+  revealedHints?: string[]
 }
 
-export default function WordGrid({ words, foundWords }: WordGridProps) {
+export default function WordGrid({ words, foundWords, revealedHints = [] }: WordGridProps) {
   // Group words by length
   const byLength = new Map<number, string[]>()
   for (const word of words) {
@@ -25,6 +26,7 @@ export default function WordGrid({ words, foundWords }: WordGridProps) {
               key={word}
               word={word}
               found={foundWords.includes(word)}
+              revealed={revealedHints.includes(word)}
             />
           ))}
         </div>

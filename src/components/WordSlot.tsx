@@ -3,19 +3,22 @@ import '../styles/wordGrid.css'
 interface WordSlotProps {
   word: string
   found: boolean
-  revealed?: boolean  // partially revealed by hint
+  revealed?: boolean  // fully revealed by hint (shown but not "found")
 }
 
-export default function WordSlot({ word, found }: WordSlotProps) {
+export default function WordSlot({ word, found, revealed = false }: WordSlotProps) {
+  const showLetters = found || revealed
+  const className = `word-slot${found ? ' found' : ''}${revealed && !found ? ' hinted' : ''}`
+
   return (
     <div
-      className={`word-slot${found ? ' found' : ''}`}
+      className={className}
       data-testid={`word-slot-${word}`}
-      aria-label={found ? word : `${word.length}-letter word`}
+      aria-label={showLetters ? word : `${word.length}-letter word`}
     >
       {word.split('').map((letter, i) => (
         <span key={i} className="letter-box">
-          {found ? letter : ''}
+          {showLetters ? letter : ''}
         </span>
       ))}
     </div>

@@ -1,6 +1,8 @@
 import { useReducer, useCallback } from 'react'
 import type { Puzzle, GameState, GameAction } from '../types'
 
+const INITIAL_HINTS = 3
+
 // Point values by word length
 function scoreForWord(word: string): number {
   const len = word.length
@@ -29,6 +31,8 @@ function createInitialState(puzzle: Puzzle): GameState {
     selectedIndices: [],
     score: 0,
     puzzleIndex: 0,
+    hints: INITIAL_HINTS,
+    revealedHints: [],
   }
 }
 
@@ -61,6 +65,16 @@ function gameReducer(state: GameState, action: GameAction): GameState {
     case 'NEXT_PUZZLE':
       return state // Handled in hook with new puzzle
 
+    case 'USE_HINT': {
+      if (state.hints <= 0) return state
+      if (state.revealedHints.includes(action.word)) return state
+      return {
+        ...state,
+        hints: state.hints - 1,
+        revealedHints: [...state.revealedHints, action.word],
+      }
+    }
+
     case 'LOAD_STATE':
       return { ...state, ...action.state }
 
@@ -70,6 +84,7 @@ function gameReducer(state: GameState, action: GameAction): GameState {
 }
 
 export type SubmitResult = 'found' | 'already_found' | 'invalid'
+export type HintResult = 'hinted' | 'no_hints' | 'no_words'
 
 export interface UseGameStateReturn {
   state: GameState
@@ -77,6 +92,7 @@ export interface UseGameStateReturn {
   clearInput: () => void
   submitWord: () => SubmitResult
   shuffleWheel: () => void
+  useHint: () => HintResult
   isPuzzleComplete: boolean
 }
 
@@ -113,9 +129,26 @@ export function useGameState(puzzle: Puzzle): UseGameStateReturn {
     dispatch({ type: 'SHUFFLE_WHEEL' })
   }, [])
 
+  const useHint = useCallback((): HintResult => {
+    if (state.hints <= 0) return 'no_hints'
+
+    // Find an unfound, un-hinted word to reveal
+    const candidates = state.puzzle.words.filter(
+      w => !state.foundWords.includes(w) && !state.revealedHints.includes(w)
+    )
+    if (candidates.length === 0) return 'no_words'
+
+    // Pick the shortest candidate to give the smallest hint
+    const target = candidates.reduce((shortest, w) =>
+      w.length < shortest.length ? w : shortest
+    )
+    dispatch({ type: 'USE_HINT', word: target })
+    return 'hinted'
+  }, [state])
+
   const isPuzzleComplete =
     state.puzzle.words.length > 0 &&
     state.puzzle.words.every(w => state.foundWords.includes(w))
 
-  return { state, selectLetter, clearInput, submitWord, shuffleWheel, isPuzzleComplete }
+  return { state, selectLetter, clearInput, submitWord, shuffleWheel, useHint, isPuzzleComplete }
 }
