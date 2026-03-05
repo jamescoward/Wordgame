@@ -25,7 +25,7 @@ function shuffleArray<T>(arr: T[]): T[] {
 
 function createInitialState(puzzle: Puzzle): GameState {
   return {
-    puzzle,
+    puzzle: { ...puzzle, letters: shuffleArray(puzzle.letters) },
     foundWords: [],
     currentInput: [],
     selectedIndices: [],
@@ -46,6 +46,16 @@ function gameReducer(state: GameState, action: GameAction): GameState {
         ...state,
         currentInput: [...state.currentInput, letter],
         selectedIndices: [...state.selectedIndices, action.index],
+      }
+    }
+
+    case 'UNWIND_TO': {
+      const pos = state.selectedIndices.indexOf(action.index)
+      if (pos === -1) return state
+      return {
+        ...state,
+        selectedIndices: state.selectedIndices.slice(0, pos + 1),
+        currentInput: state.currentInput.slice(0, pos + 1),
       }
     }
 
@@ -89,6 +99,7 @@ export type HintResult = 'hinted' | 'no_hints' | 'no_words'
 export interface UseGameStateReturn {
   state: GameState
   selectLetter: (index: number) => void
+  unwindTo: (index: number) => void
   clearInput: () => void
   submitWord: () => SubmitResult
   shuffleWheel: () => void
@@ -101,6 +112,10 @@ export function useGameState(puzzle: Puzzle): UseGameStateReturn {
 
   const selectLetter = useCallback((index: number) => {
     dispatch({ type: 'SELECT_LETTER', index })
+  }, [])
+
+  const unwindTo = useCallback((index: number) => {
+    dispatch({ type: 'UNWIND_TO', index })
   }, [])
 
   const clearInput = useCallback(() => {
@@ -150,5 +165,5 @@ export function useGameState(puzzle: Puzzle): UseGameStateReturn {
     state.puzzle.words.length > 0 &&
     state.puzzle.words.every(w => state.foundWords.includes(w))
 
-  return { state, selectLetter, clearInput, submitWord, shuffleWheel, useHint, isPuzzleComplete }
+  return { state, selectLetter, unwindTo, clearInput, submitWord, shuffleWheel, useHint, isPuzzleComplete }
 }

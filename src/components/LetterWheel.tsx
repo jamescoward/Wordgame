@@ -6,6 +6,7 @@ interface LetterWheelProps {
   letters: string[]
   selectedIndices: number[]
   onLetterSelect: (index: number) => void
+  onUnwindTo: (index: number) => void
   onSubmit: () => void
   onShuffle: () => void
   currentWord: string
@@ -32,14 +33,19 @@ export default function LetterWheel({
   letters,
   selectedIndices,
   onLetterSelect,
+  onUnwindTo,
   onSubmit,
   onShuffle,
   currentWord,
   isShaking = false,
 }: LetterWheelProps) {
   const wrapperRef = useRef<HTMLDivElement>(null)
+  const svgLiveTipRef = useRef<SVGLineElement>(null)
   const lastDragIndex = useRef<number | null>(null)
   const isDragging = useRef(false)
+  // Keep a ref to selectedIndices so touch callbacks always see the latest value
+  const selectedIndicesRef = useRef(selectedIndices)
+  selectedIndicesRef.current = selectedIndices
 
   // Build SVG path string tracing selected letters in order
   const pathPoints = selectedIndices.map(i => {
@@ -77,7 +83,13 @@ export default function LetterWheel({
     const idx = letterIndexAtPoint(svgPt.x, svgPt.y, letters, WHEEL_CONFIG, HIT_RADIUS)
     if (idx !== null && idx !== lastDragIndex.current) {
       lastDragIndex.current = idx
-      onLetterSelect(idx)
+      const prevPos = selectedIndicesRef.current.indexOf(idx)
+      if (prevPos !== -1) {
+        // Traced back over an already-selected letter — unwind to that position
+        onUnwindTo(idx)
+      } else {
+        onLetterSelect(idx)
+      }
     }
   }
 
@@ -97,6 +109,20 @@ export default function LetterWheel({
     e.preventDefault()
     const touch = e.touches[0]
     handleDragPoint(touch.clientX, touch.clientY)
+    // Draw live line from last-selected letter to current finger position
+    const el = svgLiveTipRef.current
+    const lastIdx = lastDragIndex.current
+    if (el && lastIdx !== null && wrapperRef.current) {
+      const rect = wrapperRef.current.getBoundingClientRect()
+      const svgX = (touch.clientX - rect.left) * (CONTAINER_SIZE / rect.width)
+      const svgY = (touch.clientY - rect.top) * (CONTAINER_SIZE / rect.height)
+      const angle = (TWO_PI * lastIdx) / letters.length - Math.PI / 2
+      el.setAttribute('x1', String(WHEEL_CX + WHEEL_RADIUS * Math.cos(angle)))
+      el.setAttribute('y1', String(WHEEL_CY + WHEEL_RADIUS * Math.sin(angle)))
+      el.setAttribute('x2', String(svgX))
+      el.setAttribute('y2', String(svgY))
+      el.setAttribute('visibility', 'visible')
+    }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [letters, onLetterSelect])
 
@@ -104,6 +130,7 @@ export default function LetterWheel({
     e.preventDefault()
     isDragging.current = false
     lastDragIndex.current = null
+    svgLiveTipRef.current?.setAttribute('visibility', 'hidden')
     if (currentWord.length >= 3) {
       onSubmit()
     }
@@ -136,6 +163,9 @@ export default function LetterWheel({
           {pathD && (
             <path d={pathD} className="wheel-trace" strokeLinecap="round" strokeLinejoin="round" />
           )}
+
+          {/* Live tip: dashed line from last selected letter to finger */}
+          <line ref={svgLiveTipRef} className="wheel-live-tip" x1="0" y1="0" x2="0" y2="0" visibility="hidden" strokeLinecap="round" />
 
           {/* Dot at each selected letter */}
           {pathPoints.map((p, i) => (
@@ -172,6 +202,8 @@ export default function LetterWheel({
           <button
             className="wheel-center"
             onClick={onShuffle}
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); onShuffle() }}
             aria-label="Shuffle letters"
             data-testid="shuffle-btn"
           >

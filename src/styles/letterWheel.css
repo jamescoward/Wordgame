@@ -3,13 +3,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 8px 0 4px;
+  padding: 4px 0 0;
   user-select: none;
 }
 
 /* ─── Current word preview ──────────────────────────────── */
 .current-word {
-  min-height: 40px;
+  min-height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -18,7 +18,6 @@
   letter-spacing: 0.15em;
   text-transform: uppercase;
   color: var(--color-accent2);
-  margin-bottom: 4px;
 }
 
 /* ─── Wheel wrapper (SVG + buttons) ─────────────────────── */
@@ -53,6 +52,15 @@
 
 .wheel-dot {
   fill: var(--color-accent2);
+}
+
+/* ─── Live tip (finger trail) ───────────────────────────── */
+.wheel-live-tip {
+  stroke: var(--color-accent2);
+  stroke-width: 2;
+  stroke-dasharray: 5 5;
+  opacity: 0.45;
+  pointer-events: none;
 }
 
 /* ─── Letter buttons overlay ────────────────────────────── */
