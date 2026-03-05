@@ -8,6 +8,7 @@ interface LetterWheelProps {
   onLetterSelect: (index: number) => void
   onUnwindTo: (index: number) => void
   onSubmit: () => void
+  onClearInput: () => void
   onShuffle: () => void
   currentWord: string
   isShaking?: boolean
@@ -35,6 +36,7 @@ export default function LetterWheel({
   onLetterSelect,
   onUnwindTo,
   onSubmit,
+  onClearInput,
   onShuffle,
   currentWord,
   isShaking = false,
@@ -133,8 +135,10 @@ export default function LetterWheel({
     svgLiveTipRef.current?.setAttribute('visibility', 'hidden')
     if (currentWord.length >= 3) {
       onSubmit()
+    } else if (currentWord.length > 0) {
+      onClearInput()
     }
-  }, [currentWord, onSubmit])
+  }, [currentWord, onSubmit, onClearInput])
 
   return (
     <div className="letter-wheel-container" data-testid="letter-wheel">
