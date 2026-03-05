@@ -6,7 +6,6 @@ interface LetterWheelProps {
   letters: string[]
   selectedIndices: number[]
   onLetterSelect: (index: number) => void
-  onClear: () => void
   onSubmit: () => void
   onShuffle: () => void
   currentWord: string
@@ -33,7 +32,6 @@ export default function LetterWheel({
   letters,
   selectedIndices,
   onLetterSelect,
-  onClear,
   onSubmit,
   onShuffle,
   currentWord,
@@ -111,21 +109,11 @@ export default function LetterWheel({
     }
   }, [currentWord, onSubmit])
 
-  // ── Tap handler (accessibility / desktop) ─────────────────────────────────
-
-  const handleTap = useCallback(
-    (index: number) => (e: React.MouseEvent) => {
-      e.stopPropagation()
-      onLetterSelect(index)
-    },
-    [onLetterSelect]
-  )
-
   return (
     <div className="letter-wheel-container" data-testid="letter-wheel">
       {/* Current word preview */}
       <div className="current-word" data-testid="current-word">
-        {currentWord || <span className="placeholder">Swipe or tap letters to spell</span>}
+        {currentWord}
       </div>
 
       {/* Wheel */}
@@ -172,7 +160,6 @@ export default function LetterWheel({
                   left: `${px}%`,
                   top: `${py}%`,
                 }}
-                onClick={handleTap(i)}
                 aria-label={`Letter ${letter}`}
                 data-testid={`wheel-letter-${i}`}
               >
@@ -193,25 +180,6 @@ export default function LetterWheel({
         </div>
       </div>
 
-      {/* Action buttons */}
-      <div className="wheel-actions">
-        <button
-          className="action-btn clear-btn"
-          onClick={onClear}
-          disabled={currentWord.length === 0}
-          data-testid="clear-btn"
-        >
-          Clear
-        </button>
-        <button
-          className="action-btn submit-btn"
-          onClick={onSubmit}
-          disabled={currentWord.length < 3}
-          data-testid="submit-btn"
-        >
-          Enter
-        </button>
-      </div>
     </div>
   )
 }
