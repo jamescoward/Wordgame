@@ -12,6 +12,8 @@ export interface GameState {
   selectedIndices: number[]     // Wheel positions selected
   score: number
   puzzleIndex: number
+  hints: number                 // Available hint uses
+  revealedHints: string[]       // Words that have been hinted (fully revealed)
 }
 
 export type GameAction =
@@ -21,3 +23,4 @@ export type GameAction =
   | { type: 'SHUFFLE_WHEEL' }
   | { type: 'NEXT_PUZZLE' }
   | { type: 'LOAD_STATE'; state: Partial<GameState> }
+  | { type: 'USE_HINT'; word: string }

@@ -20,10 +20,17 @@ const MIME = {
 }
 
 // Simple static file server for the dist build
+// The app is built with base: '/Wordgame/' so strip that prefix when resolving files
+const BASE = '/Wordgame/'
+
 const server = createServer((req, res) => {
   let urlPath = req.url ?? '/'
-  if (urlPath === '/' || !urlPath.includes('.')) urlPath = '/index.html'
-  const file = resolve(DIST, urlPath.slice(1))
+  // Strip the base prefix to get the file path inside dist/
+  if (urlPath.startsWith(BASE)) {
+    urlPath = urlPath.slice(BASE.length)
+  }
+  if (!urlPath || !urlPath.includes('.')) urlPath = 'index.html'
+  const file = resolve(DIST, urlPath)
   if (existsSync(file)) {
     const ext = extname(file)
     res.writeHead(200, { 'Content-Type': MIME[ext] ?? 'application/octet-stream' })
@@ -46,7 +53,7 @@ const browser = await puppeteer.launch({
 
 const page = await browser.newPage()
 await page.setViewport({ width: 390, height: 844, deviceScaleFactor: 2 })
-await page.goto(`http://localhost:${PORT}`, { waitUntil: 'networkidle0' })
+await page.goto(`http://localhost:${PORT}${BASE}`, { waitUntil: 'networkidle0' })
 
 // Wait for the letter wheel to be present
 await page.waitForSelector('[data-testid="letter-wheel"]')

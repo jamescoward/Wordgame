@@ -40,10 +40,32 @@
   background: var(--color-found-bg);
   border-color: var(--color-found);
   color: #a5d6a7;
-  animation: revealLetter 0.3s ease both;
 }
 
+/* Staggered reveal animation for each letter */
+.word-slot.found .letter-box:nth-child(1) { animation: revealLetter 0.25s 0.00s ease both; }
+.word-slot.found .letter-box:nth-child(2) { animation: revealLetter 0.25s 0.05s ease both; }
+.word-slot.found .letter-box:nth-child(3) { animation: revealLetter 0.25s 0.10s ease both; }
+.word-slot.found .letter-box:nth-child(4) { animation: revealLetter 0.25s 0.15s ease both; }
+.word-slot.found .letter-box:nth-child(5) { animation: revealLetter 0.25s 0.20s ease both; }
+.word-slot.found .letter-box:nth-child(6) { animation: revealLetter 0.25s 0.25s ease both; }
+.word-slot.found .letter-box:nth-child(7) { animation: revealLetter 0.25s 0.30s ease both; }
+
 @keyframes revealLetter {
-  from { transform: scaleY(0); opacity: 0; }
-  to   { transform: scaleY(1); opacity: 1; }
+  0%   { transform: scaleY(0) rotateX(90deg); opacity: 0; }
+  60%  { transform: scaleY(1.1) rotateX(-5deg); opacity: 1; }
+  100% { transform: scaleY(1) rotateX(0deg); opacity: 1; }
+}
+
+/* ─── Hinted slot (revealed by hint, not yet found) ─────── */
+.word-slot.hinted .letter-box {
+  background: var(--color-surface2);
+  border-color: #f39c12;
+  color: #f39c12;
+  animation: hintReveal 0.4s ease both;
+}
+
+@keyframes hintReveal {
+  0%   { opacity: 0; transform: scaleY(0); }
+  100% { opacity: 1; transform: scaleY(1); }
 }
