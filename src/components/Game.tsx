@@ -34,7 +34,7 @@ export default function Game() {
   const initialPuzzleIndex = saved?.puzzleIndex ?? 0
   const puzzle = puzzles[initialPuzzleIndex % puzzles.length]
 
-  const { state, selectLetter, clearInput, submitWord, shuffleWheel, useHint, isPuzzleComplete } =
+  const { state, selectLetter, submitWord, shuffleWheel, useHint, isPuzzleComplete } =
     useGameState(puzzle)
 
   const [feedback, setFeedback] = useState<FeedbackKind>(null)
@@ -154,7 +154,6 @@ export default function Game() {
           letters={state.puzzle.letters}
           selectedIndices={state.selectedIndices}
           onLetterSelect={selectLetter}
-          onClear={clearInput}
           onSubmit={handleSubmit}
           onShuffle={shuffleWheel}
           currentWord={state.currentInput.join('')}

@@ -21,14 +21,6 @@
   margin-bottom: 4px;
 }
 
-.current-word .placeholder {
-  font-size: 0.8rem;
-  font-weight: 400;
-  color: var(--color-text-muted);
-  letter-spacing: normal;
-  text-transform: none;
-}
-
 /* ─── Wheel wrapper (SVG + buttons) ─────────────────────── */
 .wheel-wrapper {
   position: relative;
@@ -126,41 +118,6 @@
   background: #c0392b;
   transform: translate(-50%, -50%) rotate(180deg);
 }
-
-/* ─── Action buttons row ─────────────────────────────────── */
-.wheel-actions {
-  display: flex;
-  gap: 16px;
-  margin-top: 8px;
-  padding-bottom: 8px;
-}
-
-.action-btn {
-  min-width: 100px;
-  min-height: 44px;
-  border-radius: var(--radius-lg);
-  font-size: 1rem;
-  font-weight: 600;
-  padding: 10px 24px;
-  transition: opacity 0.15s, transform 0.1s;
-}
-
-.action-btn:active { transform: scale(0.96); }
-
-.clear-btn {
-  background: var(--color-surface2);
-  color: var(--color-text);
-  border: 1px solid var(--color-surface2);
-}
-
-.clear-btn:disabled { opacity: 0.35; }
-
-.submit-btn {
-  background: var(--color-accent2);
-  color: #1a1a2e;
-}
-
-.submit-btn:disabled { opacity: 0.35; }
 
 /* ─── Shake animation (invalid word) ────────────────────── */
 @keyframes shake {
