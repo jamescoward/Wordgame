@@ -1,0 +1,49 @@
+/* ─── Word grid ─────────────────────────────────────────── */
+.word-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.word-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-start;
+}
+
+/* ─── Individual word slot ──────────────────────────────── */
+.word-slot {
+  display: flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.letter-box {
+  width: 26px;
+  height: 30px;
+  border: 2px solid var(--color-surface2);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text);
+  background: var(--color-surface);
+  text-transform: uppercase;
+  transition: background 0.25s, border-color 0.25s, color 0.25s;
+  letter-spacing: 0;
+}
+
+.word-slot.found .letter-box {
+  background: var(--color-found-bg);
+  border-color: var(--color-found);
+  color: #a5d6a7;
+  animation: revealLetter 0.3s ease both;
+}
+
+@keyframes revealLetter {
+  from { transform: scaleY(0); opacity: 0; }
+  to   { transform: scaleY(1); opacity: 1; }
+}
