@@ -18,6 +18,7 @@ export interface GameState {
 
 export type GameAction =
   | { type: 'SELECT_LETTER'; index: number }
+  | { type: 'UNWIND_TO'; index: number }
   | { type: 'CLEAR_INPUT' }
   | { type: 'SUBMIT_WORD' }
   | { type: 'SHUFFLE_WHEEL' }
