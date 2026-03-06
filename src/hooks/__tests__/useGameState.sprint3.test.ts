@@ -3,14 +3,14 @@
  *
  * Covers:
  *  - Star-based hint system (hints cost stars)
- *  - Bonus word detection (valid English word not in puzzle list → +3 stars)
- *  - Flawless round bonus (no invalid attempts → +20 stars at completion)
- *  - Puzzle completion bonuses (+10 always, +15 if no reveals used)
+ *  - Bonus word detection (valid English word not in puzzle list → +1 star)
+ *  - Flawless round bonus (no invalid attempts → +10 stars at completion)
+ *  - Puzzle completion bonuses (+5 always, +5 if no reveals used)
  *  - hadInvalidAttempt tracking
  */
 import { describe, it, expect } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
-import { useGameState } from '../useGameState'
+import { useGameState, BONUS_COMPLETE, BONUS_NO_REVEAL, BONUS_FLAWLESS } from '../useGameState'
 import type { Puzzle } from '../../types'
 
 // CRAMMED puzzle — letters C(0) R(1) A(2) M(3) M(4) E(5) D(6)
@@ -58,11 +58,11 @@ describe('bonus word detection', () => {
     expect(submitResult).toBe('bonus_word')
   })
 
-  it('awards 3 stars for a bonus word', () => {
+  it('awards 1 star for a bonus word', () => {
     const { result } = renderHook(() => useGameState(TEST_PUZZLE))
     spellWord(result, 'ARM', TEST_PUZZLE)
     act(() => result.current.submitWord())
-    expect(result.current.state.score).toBe(3)
+    expect(result.current.state.score).toBe(1)
   })
 
   it('tracks bonus words in bonusWords array', () => {
@@ -82,8 +82,8 @@ describe('bonus word detection', () => {
     let secondResult: string | undefined
     act(() => { secondResult = result.current.submitWord() })
     expect(secondResult).toBe('already_found')
-    // Score should still be 3, not 6
-    expect(result.current.state.score).toBe(3)
+    // Score should still be 1, not 2
+    expect(result.current.state.score).toBe(1)
   })
 
   it('still returns "invalid" for a nonsense word not in dictionary', () => {
