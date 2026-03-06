@@ -2,6 +2,7 @@ import { writeFileSync } from 'fs'
 import { resolve } from 'path'
 import { WORD_LIST } from './wordlist.ts'
 import type { Puzzle } from '../src/types.ts'
+import { selectPuzzleWords, MIN_PUZZLE_WORDS, MAX_PUZZLE_WORDS } from '../src/utils/selectPuzzleWords.ts'
 
 // Deduplicate and normalise word list
 const ALL_WORDS = new Set(WORD_LIST.map(w => w.toUpperCase()))
@@ -37,15 +38,14 @@ function findSubWords(letters: string[]): string[] {
 
 /**
  * Generate puzzles from the word list.
- * Main words are 6-8 letters; keep puzzles with 8-20 valid sub-words.
+ * Main words are 6-9 letters; keep puzzles with MIN_PUZZLE_WORDS–MAX_PUZZLE_WORDS valid sub-words.
  */
 function generatePuzzles(count: number): Puzzle[] {
-  // Candidate main words: 6-8 letters
+  // Candidate main words: 6-9 letters
   const candidates = WORD_LIST
     .map(w => w.toUpperCase())
-    .filter(w => w.length >= 6 && w.length <= 8)
-    // Deduplicate
-    .filter((w, i, arr) => arr.indexOf(w) === i)
+    .filter(w => w.length >= 6 && w.length <= 9)
+    .filter((w, i, arr) => arr.indexOf(w) === i) // deduplicate
 
   const puzzles: Puzzle[] = []
   let id = 1
@@ -54,17 +54,21 @@ function generatePuzzles(count: number): Puzzle[] {
     if (puzzles.length >= count) break
 
     const letters = mainWord.split('')
-    const subWords = findSubWords(letters)
+    const allSubWords = findSubWords(letters)
 
-    // Only keep puzzles where the main word itself is valid AND has 8-20 sub-words
+    // Must be a valid word in the dictionary
     if (!ALL_WORDS.has(mainWord)) continue
-    if (subWords.length < 8 || subWords.length > 20) continue
+    // Must have enough raw sub-words to produce a satisfying puzzle
+    if (allSubWords.length < MIN_PUZZLE_WORDS) continue
+
+    // Cap and balance the sub-word list
+    const words = selectPuzzleWords(allSubWords)
 
     puzzles.push({
       id: id++,
       letters,
       mainWord,
-      words: subWords,
+      words,
     })
   }
 
