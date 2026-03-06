@@ -36,24 +36,41 @@ function findSubWords(letters: string[]): string[] {
   return results.sort((a, b) => a.length - b.length || a.localeCompare(b))
 }
 
+/** Fisher-Yates shuffle — returns a new shuffled array */
+function shuffle<T>(arr: T[]): T[] {
+  const out = [...arr]
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[out[i], out[j]] = [out[j], out[i]]
+  }
+  return out
+}
+
 /**
  * Generate puzzles from the word list.
  * Main words are 6-9 letters; keep puzzles with MIN_PUZZLE_WORDS–MAX_PUZZLE_WORDS valid sub-words.
  */
 function generatePuzzles(count: number): Puzzle[] {
-  // Candidate main words: 6-9 letters
-  const candidates = WORD_LIST
-    .map(w => w.toUpperCase())
-    .filter(w => w.length >= 6 && w.length <= 9)
-    .filter((w, i, arr) => arr.indexOf(w) === i) // deduplicate
+  // Candidate main words: 6-9 letters, shuffled for variety across lengths
+  const candidates = shuffle(
+    WORD_LIST
+      .map(w => w.toUpperCase())
+      .filter(w => w.length >= 6 && w.length <= 9)
+      .filter((w, i, arr) => arr.indexOf(w) === i) // deduplicate
+  )
 
   const puzzles: Puzzle[] = []
+  const seenLetterSets = new Set<string>()
   let id = 1
 
   for (const mainWord of candidates) {
     if (puzzles.length >= count) break
 
     const letters = mainWord.split('')
+    // Skip puzzles with the same letter multiset (same sub-words, different arrangement)
+    const letterKey = [...letters].sort().join('')
+    if (seenLetterSets.has(letterKey)) continue
+
     const allSubWords = findSubWords(letters)
 
     // Must be a valid word in the dictionary
@@ -64,6 +81,7 @@ function generatePuzzles(count: number): Puzzle[] {
     // Cap and balance the sub-word list
     const words = selectPuzzleWords(allSubWords)
 
+    seenLetterSets.add(letterKey)
     puzzles.push({
       id: id++,
       letters,
