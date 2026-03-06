@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
-import { useGameState, HINT_COST, REVEAL_COST } from '../hooks/useGameState'
+import { useGameState, HINT_COST, REVEAL_COST, BONUS_COMPLETE, BONUS_NO_REVEAL, BONUS_FLAWLESS } from '../hooks/useGameState'
 import { useStreak } from '../hooks/useStreak'
 import LetterWheel from './LetterWheel'
 import WordGrid from './WordGrid'
@@ -192,7 +192,7 @@ export default function Game() {
 
   const feedbackMessages: Record<NonNullable<FeedbackKind>, string> = {
     found: '✓ Found!',
-    bonus_word: '⭐ Bonus Word! +3',
+    bonus_word: '⭐ Bonus Word! +1',
     already_found: 'Already found',
     invalid: 'Not a word',
     complete: isFlawless ? '🌟 Flawless!' : '🎉 Puzzle complete!',
@@ -246,8 +246,8 @@ export default function Game() {
         />
       </main>
 
-      {/* Power-up bar */}
-      <div className="powerup-bar">
+      {/* Letter wheel flanked by power-up buttons */}
+      <footer className="game-footer">
         <button
           className={`powerup-btn hint-btn${canAffordHint ? '' : ' powerup-disabled'}`}
           onClick={handleHint}
@@ -255,21 +255,8 @@ export default function Game() {
           data-testid="hint-btn"
           aria-label={`Letter hint — costs ${HINT_COST} stars`}
         >
-          💡 {HINT_COST}⭐
+          💡<span className="powerup-cost">{HINT_COST}⭐</span>
         </button>
-        <button
-          className={`powerup-btn reveal-btn${canAffordReveal ? '' : ' powerup-disabled'}`}
-          onClick={handleReveal}
-          disabled={!canAffordReveal || isPuzzleComplete}
-          data-testid="reveal-btn"
-          aria-label={`Reveal word — costs ${REVEAL_COST} stars`}
-        >
-          👁 {REVEAL_COST}⭐
-        </button>
-      </div>
-
-      {/* Letter wheel — fixed to bottom */}
-      <footer className="game-footer">
         <LetterWheel
           letters={state.puzzle.letters}
           selectedIndices={state.selectedIndices}
@@ -281,6 +268,15 @@ export default function Game() {
           currentWord={state.currentInput.join('')}
           isShaking={isShaking}
         />
+        <button
+          className={`powerup-btn reveal-btn${canAffordReveal ? '' : ' powerup-disabled'}`}
+          onClick={handleReveal}
+          disabled={!canAffordReveal || isPuzzleComplete}
+          data-testid="reveal-btn"
+          aria-label={`Reveal word — costs ${REVEAL_COST} stars`}
+        >
+          👁<span className="powerup-cost">{REVEAL_COST}⭐</span>
+        </button>
       </footer>
 
       {/* Puzzle complete overlay */}
@@ -295,10 +291,10 @@ export default function Game() {
               <p className="flawless-msg">No wrong guesses — perfect round!</p>
             )}
             <div className="bonus-breakdown">
-              <div className="bonus-line">+{10} ⭐ Puzzle complete</div>
-              {!state.revealUsed && <div className="bonus-line">+{15} ⭐ No reveals used</div>}
+              <div className="bonus-line">+{BONUS_COMPLETE} ⭐ Puzzle complete</div>
+              {!state.revealUsed && <div className="bonus-line">+{BONUS_NO_REVEAL} ⭐ No reveals used</div>}
               {!state.hadInvalidAttempt && (
-                <div className="bonus-line bonus-flawless">+{20} ⭐ Flawless round!</div>
+                <div className="bonus-line bonus-flawless">+{BONUS_FLAWLESS} ⭐ Flawless round!</div>
               )}
             </div>
             <p className="complete-score">Total stars: {state.score} ⭐</p>

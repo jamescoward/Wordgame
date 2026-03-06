@@ -2,7 +2,7 @@ import { writeFileSync } from 'fs'
 import { resolve } from 'path'
 import { WORD_LIST } from './wordlist.ts'
 import type { Puzzle } from '../src/types.ts'
-import { selectPuzzleWords, MIN_PUZZLE_WORDS, MAX_PUZZLE_WORDS } from '../src/utils/selectPuzzleWords.ts'
+import { selectPuzzleWords, MIN_PUZZLE_WORDS } from '../src/utils/selectPuzzleWords.ts'
 
 // Deduplicate and normalise word list
 const ALL_WORDS = new Set(WORD_LIST.map(w => w.toUpperCase()))
