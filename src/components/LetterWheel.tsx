@@ -9,7 +9,6 @@ interface LetterWheelProps {
   onUnwindTo: (index: number) => void
   onSubmit: () => void
   onClearInput: () => void
-  onShuffle: () => void
   currentWord: string
   isShaking?: boolean
 }
@@ -37,7 +36,6 @@ export default function LetterWheel({
   onUnwindTo,
   onSubmit,
   onClearInput,
-  onShuffle,
   currentWord,
   isShaking = false,
 }: LetterWheelProps) {
@@ -202,17 +200,6 @@ export default function LetterWheel({
             )
           })}
 
-          {/* Centre shuffle button */}
-          <button
-            className="wheel-center"
-            onClick={onShuffle}
-            onTouchStart={(e) => e.stopPropagation()}
-            onTouchEnd={(e) => { e.preventDefault(); e.stopPropagation(); onShuffle() }}
-            aria-label="Shuffle letters"
-            data-testid="shuffle-btn"
-          >
-            ↺
-          </button>
         </div>
       </div>
 

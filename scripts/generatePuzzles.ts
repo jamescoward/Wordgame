@@ -48,14 +48,14 @@ function shuffle<T>(arr: T[]): T[] {
 
 /**
  * Generate puzzles from the word list.
- * Main words are 6-9 letters; keep puzzles with MIN_PUZZLE_WORDS–MAX_PUZZLE_WORDS valid sub-words.
+ * Main words are 6-8 letters; keep puzzles with MIN_PUZZLE_WORDS–MAX_PUZZLE_WORDS valid sub-words.
  */
 function generatePuzzles(count: number): Puzzle[] {
-  // Candidate main words: 6-9 letters, shuffled for variety across lengths
+  // Candidate main words: 6-8 letters, shuffled for variety across lengths
   const candidates = shuffle(
     WORD_LIST
       .map(w => w.toUpperCase())
-      .filter(w => w.length >= 6 && w.length <= 9)
+      .filter(w => w.length >= 6 && w.length <= 8)
       .filter((w, i, arr) => arr.indexOf(w) === i) // deduplicate
   )
 
