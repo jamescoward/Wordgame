@@ -182,7 +182,7 @@ export default function Game() {
       JSON.stringify({
         puzzleIndex: nextIndex,
         foundWords: [],
-        bonusWords: [],
+        bonusWords: state.bonusWords,
         score: state.score,
         revealedHints: [],
         revealedWords: [],
