@@ -75,42 +75,49 @@ export default function Game() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Restore persisted state
+  // Restore persisted state and award daily streak bonus in one dispatch
+  // (combining avoids the daily bonus using stale state.score = 0)
   useEffect(() => {
-    if (!saved) return
-    dispatch({
-      type: 'LOAD_STATE',
-      state: {
-        foundWords: saved.foundWords,
-        bonusWords: saved.bonusWords ?? [],
-        score: saved.score,
-        revealedHints: saved.revealedHints ?? [],
-        revealedWords: saved.revealedWords ?? [],
-      },
-    })
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+    let baseScore = saved?.score ?? 0
+    let bonusMessage: string | null = null
 
-  // Award daily streak bonus once per session (first load of the day)
-  useEffect(() => {
     if (!dailyBonusClaimed && streak.dailyBonusAvailable) {
       const today = new Date().toISOString().slice(0, 10)
       streak.recordPlay(today)
       const newStreakDays = streak.streakDays + 1
       const bonusStars = newStreakDays * 5
-      dispatch({ type: 'LOAD_STATE', state: { score: state.score + bonusStars } })
+      baseScore += bonusStars
       setDailyBonusClaimed(true)
-      showFeedback('daily_bonus', 2500, `🔥 Day ${newStreakDays} streak! +${bonusStars}⭐`)
+      bonusMessage = `🔥 Day ${newStreakDays} streak! +${bonusStars}⭐`
     }
+
+    if (saved) {
+      dispatch({
+        type: 'LOAD_STATE',
+        state: {
+          puzzleIndex: saved.puzzleIndex,
+          foundWords: saved.foundWords,
+          bonusWords: saved.bonusWords ?? [],
+          score: baseScore,
+          revealedHints: saved.revealedHints ?? [],
+          revealedWords: saved.revealedWords ?? [],
+        },
+      })
+    } else if (bonusMessage) {
+      dispatch({ type: 'LOAD_STATE', state: { score: baseScore } })
+    }
+
+    if (bonusMessage) showFeedback('daily_bonus', 2500, bonusMessage)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Persist state on change
+  // Persist state on change — use initialPuzzleIndex (read from localStorage at load time)
+  // rather than state.puzzleIndex which starts at 0 until the restore effect runs.
   useEffect(() => {
     localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({
-        puzzleIndex: state.puzzleIndex,
+        puzzleIndex: initialPuzzleIndex,
         foundWords: state.foundWords,
         bonusWords: state.bonusWords,
         score: state.score,
@@ -119,9 +126,9 @@ export default function Game() {
       })
     )
   }, [
+    initialPuzzleIndex,
     state.foundWords,
     state.bonusWords,
-    state.puzzleIndex,
     state.score,
     state.revealedHints,
     state.revealedWords,
