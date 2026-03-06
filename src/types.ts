@@ -7,13 +7,17 @@ export interface Puzzle {
 
 export interface GameState {
   puzzle: Puzzle
-  foundWords: string[]          // Words found so far (Set serialised as array)
+  foundWords: string[]          // Words found so far
+  bonusWords: string[]          // Valid English words found that aren't in the puzzle list
   currentInput: string[]        // Letters currently selected (in order)
   selectedIndices: number[]     // Wheel positions selected
-  score: number
+  score: number                 // Stars — earned and spendable currency
   puzzleIndex: number
-  hints: number                 // Available hint uses
-  revealedHints: string[]       // Words that have been hinted (fully revealed)
+  revealedHints: string[]       // Words with one letter revealed (letter hint)
+  revealedWords: string[]       // Words fully revealed (word reveal power-up)
+  hadInvalidAttempt: boolean    // True once any invalid word is submitted this puzzle
+  revealUsed: boolean           // True if any star-spend reveal was used this puzzle
+  bonusAwarded: boolean         // Completion bonus has already been awarded
 }
 
 export type GameAction =
@@ -25,3 +29,4 @@ export type GameAction =
   | { type: 'NEXT_PUZZLE' }
   | { type: 'LOAD_STATE'; state: Partial<GameState> }
   | { type: 'USE_HINT'; word: string }
+  | { type: 'USE_REVEAL'; word: string }
