@@ -1,4 +1,4 @@
-export const MAX_PUZZLE_WORDS = 15
+export const MAX_PUZZLE_WORDS = 14
 export const MIN_PUZZLE_WORDS = 6
 
 /**

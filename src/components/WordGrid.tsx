@@ -28,7 +28,7 @@ export default function WordGrid({
   return (
     <div className="word-grid" data-testid="word-grid">
       {lengths.map(len => (
-        <div key={len} className={`word-group${len >= 6 ? ' word-group--single' : ''}`}>
+        <div key={len} className="word-group">
           {byLength.get(len)!.map(word => (
             <WordSlot
               key={word}
