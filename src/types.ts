@@ -30,3 +30,48 @@ export type GameAction =
   | { type: 'LOAD_STATE'; state: Partial<GameState> }
   | { type: 'USE_HINT'; word: string }
   | { type: 'USE_REVEAL'; word: string }
+
+// ─── Phase 7: Cosmetics System ────────────────────────────
+
+export interface Background {
+  id: string
+  name: string
+  price: number          // 0 = free
+  filename: string       // e.g. "forest-canopy.jpg" in public/backgrounds/
+  photographer: string   // Credit name
+  photographerUrl: string
+}
+
+export interface BlockTheme {
+  id: string
+  name: string
+  price: number          // 0 = free
+  premium: boolean
+  vars: {
+    '--theme-slot-bg': string
+    '--theme-slot-found-bg': string
+    '--theme-slot-text': string
+    '--theme-slot-border': string
+    '--theme-slot-found-text': string
+  }
+  effect?: 'holographic' | 'shimmer' | 'none'
+}
+
+export interface CosmeticsState {
+  gems: number
+  purchasedBackgrounds: string[]   // background IDs
+  activeBackground: string         // 'default' or background ID
+  purchasedThemes: string[]        // theme IDs
+  activeTheme: string              // 'default' or theme ID
+}
+
+export type GemEvent =
+  | { type: 'PUZZLE_COMPLETE' }
+  | { type: 'BONUS_WORD_FOUND' }
+  | { type: 'FLAWLESS_PUZZLE' }
+  | { type: 'STREAK_MILESTONE'; days: 3 | 7 | 14 }
+  | { type: 'CHEAT_GEMS' }
+  | { type: 'PURCHASE'; cost: number }
+  | { type: 'SET_BACKGROUND'; id: string }
+  | { type: 'SET_THEME'; id: string }
+  | { type: 'LOAD_COSMETICS'; state: Partial<CosmeticsState> }

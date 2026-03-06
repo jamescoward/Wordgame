@@ -1,11 +1,15 @@
 import { useState, useEffect, useRef } from 'react'
 import { useGameState, HINT_COST, REVEAL_COST, BONUS_COMPLETE, BONUS_NO_REVEAL, BONUS_FLAWLESS } from '../hooks/useGameState'
 import { useStreak } from '../hooks/useStreak'
+import { useCosmeticsState } from '../hooks/useCosmeticsState'
 import LetterWheel from './LetterWheel'
 import WordGrid from './WordGrid'
+import Shop from './Shop'
 import puzzlesData from '../data/puzzles.json'
+import { BACKGROUNDS, BLOCK_THEMES } from '../data/cosmetics'
 import type { Puzzle } from '../types'
 import '../styles/game.css'
+import '../styles/themes.css'
 
 const puzzles = puzzlesData as Puzzle[]
 
@@ -40,6 +44,9 @@ type FeedbackKind =
   | 'no_stars'
   | 'no_words'
   | 'daily_bonus'
+  | 'gem_award'
+  | 'shop_purchase'
+  | 'cheat_gems'
   | null
 
 export default function Game() {
@@ -62,12 +69,14 @@ export default function Game() {
   } = useGameState(puzzle)
 
   const streak = useStreak()
+  const cosmetics = useCosmeticsState()
 
   const [feedback, setFeedback] = useState<FeedbackKind>(null)
   const [feedbackExtra, setFeedbackExtra] = useState<string>('')
   const [isShaking, setIsShaking] = useState(false)
   const [dailyBonusClaimed, setDailyBonusClaimed] = useState(false)
   const [showBonusModal, setShowBonusModal] = useState(false)
+  const [showShop, setShowShop] = useState(false)
   const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Shuffle letters on first render so the wheel doesn't reveal word order
@@ -77,7 +86,6 @@ export default function Game() {
   }, [])
 
   // Restore persisted state and award daily streak bonus in one dispatch
-  // (combining avoids the daily bonus using stale state.score = 0)
   useEffect(() => {
     let baseScore = saved?.score ?? 0
     let bonusMessage: string | null = null
@@ -90,6 +98,11 @@ export default function Game() {
       baseScore += bonusStars
       setDailyBonusClaimed(true)
       bonusMessage = `🔥 Day ${newStreakDays} streak! +${bonusStars}⭐`
+
+      // Award streak milestone gems
+      if (newStreakDays === 3 || newStreakDays === 7 || newStreakDays === 14) {
+        cosmetics.awardGems({ type: 'STREAK_MILESTONE', days: newStreakDays as 3 | 7 | 14 })
+      }
     }
 
     if (saved) {
@@ -112,8 +125,7 @@ export default function Game() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  // Persist state on change — use initialPuzzleIndex (read from localStorage at load time)
-  // rather than state.puzzleIndex which starts at 0 until the restore effect runs.
+  // Persist state on change
   useEffect(() => {
     localStorage.setItem(
       STORAGE_KEY,
@@ -148,10 +160,25 @@ export default function Game() {
   }
 
   function handleSubmit() {
+    const wasFlawless = !state.hadInvalidAttempt
     const result = submitWord()
-    if (result === 'found' && isPuzzleComplete) {
-      showFeedback('complete', 2500)
+
+    if (result === 'found') {
+      const allFound = state.puzzle.words.every(
+        w => [...state.foundWords, state.currentInput.join('')].includes(w)
+      )
+      if (isPuzzleComplete || allFound) {
+        // Puzzle complete — award gems
+        cosmetics.awardGems({ type: 'PUZZLE_COMPLETE' })
+        if (wasFlawless) {
+          cosmetics.awardGems({ type: 'FLAWLESS_PUZZLE' })
+        }
+        showFeedback('complete', 2500)
+      } else {
+        showFeedback('found')
+      }
     } else if (result === 'bonus_word') {
+      cosmetics.awardGems({ type: 'BONUS_WORD_FOUND' })
       showFeedback('bonus_word', 1500)
     } else if (result === 'invalid') {
       triggerShake()
@@ -191,6 +218,31 @@ export default function Game() {
     window.location.reload()
   }
 
+  function handleGemTap() {
+    const prevGems = cosmetics.state.gems
+    cosmetics.handleGemTap()
+    // Check if cheat was triggered (gems jumped by 500)
+    // We do this via a small delay to let state update
+    setTimeout(() => {
+      if (cosmetics.state.gems - prevGems >= 500) {
+        showFeedback('cheat_gems', 2000, '🔑 +500💎 cheat activated')
+      }
+    }, 50)
+  }
+
+  function handlePurchaseSuccess(name: string) {
+    showFeedback('shop_purchase', 2000, `✨ ${name} unlocked!`)
+  }
+
+  // Resolve active background image style
+  const activeBg = BACKGROUNDS.find(b => b.id === cosmetics.state.activeBackground)
+  const activeTheme = BLOCK_THEMES.find(t => t.id === cosmetics.state.activeTheme)
+
+  const backgroundStyle: React.CSSProperties =
+    activeBg && activeBg.id !== 'default' && activeBg.filename
+      ? { backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url(/backgrounds/${activeBg.filename})` }
+      : {}
+
   const feedbackMessages: Record<NonNullable<FeedbackKind>, string> = {
     found: '✓ Found!',
     bonus_word: '⭐ Bonus Word! +1',
@@ -202,13 +254,26 @@ export default function Game() {
     no_stars: 'Not enough stars!',
     no_words: 'No words left to reveal',
     daily_bonus: feedbackExtra || 'Daily bonus!',
+    gem_award: feedbackExtra || '+💎',
+    shop_purchase: feedbackExtra || 'Unlocked!',
+    cheat_gems: feedbackExtra || '🔑 Cheat activated',
   }
 
   const canAffordHint = state.score >= HINT_COST
   const canAffordReveal = state.score >= REVEAL_COST
 
   return (
-    <div className="game" data-testid="game">
+    <div
+      className="game"
+      data-testid="game"
+      data-theme={activeTheme?.id ?? 'default'}
+      style={{
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        ...backgroundStyle,
+      }}
+    >
       {/* Header */}
       <header className="game-header">
         <div className="game-title-group">
@@ -223,6 +288,24 @@ export default function Game() {
           <div className="game-score" data-testid="score">
             ⭐ {state.score}
           </div>
+          {/* Gem counter — tap 7 times for cheat */}
+          <button
+            className="gem-counter-btn"
+            onClick={handleGemTap}
+            aria-label={`Gems: ${cosmetics.state.gems}`}
+            data-testid="gem-counter"
+          >
+            💎 {cosmetics.state.gems}
+          </button>
+          {/* Shop button */}
+          <button
+            className="shop-btn"
+            onClick={() => setShowShop(true)}
+            aria-label="Open cosmetics shop"
+            data-testid="shop-btn"
+          >
+            🎨
+          </button>
           <button
             className="bonus-words-btn"
             onClick={() => setShowBonusModal(true)}
@@ -245,7 +328,16 @@ export default function Game() {
         >
           {feedback === 'daily_bonus' && feedbackExtra
             ? feedbackExtra
-            : feedbackMessages[feedback]}
+            : feedback === 'shop_purchase' || feedback === 'cheat_gems'
+              ? feedbackExtra
+              : feedbackMessages[feedback]}
+        </div>
+      )}
+
+      {/* Background attribution badge */}
+      {activeBg && activeBg.id !== 'default' && activeBg.photographer && (
+        <div className="bg-attribution" data-testid="bg-attribution">
+          Photo: {activeBg.photographer} / Unsplash
         </div>
       )}
 
@@ -318,6 +410,8 @@ export default function Game() {
               {!state.hadInvalidAttempt && (
                 <div className="bonus-line bonus-flawless">+{BONUS_FLAWLESS} ⭐ Flawless round!</div>
               )}
+              <div className="bonus-line bonus-gems">+1 💎 Puzzle complete</div>
+              {isFlawless && <div className="bonus-line bonus-gems">+2 💎 Flawless!</div>}
             </div>
             <p className="complete-score">Total stars: {state.score} ⭐</p>
             <button className="next-btn" onClick={handleNextPuzzle}>
@@ -366,6 +460,15 @@ export default function Game() {
             <p className="bonus-modal-tip">Bonus words are valid words not in the puzzle list. Each earns +1⭐</p>
           </div>
         </div>
+      )}
+
+      {/* Shop modal */}
+      {showShop && (
+        <Shop
+          cosmetics={cosmetics}
+          onClose={() => setShowShop(false)}
+          onPurchaseSuccess={handlePurchaseSuccess}
+        />
       )}
     </div>
   )

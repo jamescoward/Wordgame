@@ -1,0 +1,82 @@
+/* ─── Default theme variables ─────────────────────────────────────────────
+   These are the base values; all other themes override via [data-theme] attr
+   applied to .game root element.
+──────────────────────────────────────────────────────────────────────────── */
+:root {
+  --theme-slot-bg: #0f3460;
+  --theme-slot-found-bg: #1a5c2a;
+  --theme-slot-text: #eaeaea;
+  --theme-slot-border: #f5a623;
+  --theme-slot-found-text: #ffffff;
+}
+
+/* ─── Amethyst ─────────────────────────────────────────────────────────── */
+[data-theme="amethyst"] {
+  --theme-slot-bg: #3b1361;
+  --theme-slot-found-bg: #5a2090;
+  --theme-slot-text: #f0e6ff;
+  --theme-slot-border: #c084fc;
+  --theme-slot-found-text: #ffffff;
+}
+
+/* ─── Forest ───────────────────────────────────────────────────────────── */
+[data-theme="forest"] {
+  --theme-slot-bg: #1a3a2a;
+  --theme-slot-found-bg: #2a5a3a;
+  --theme-slot-text: #d4f4e2;
+  --theme-slot-border: #6ee7b7;
+  --theme-slot-found-text: #ffffff;
+}
+
+/* ─── Sunset ───────────────────────────────────────────────────────────── */
+[data-theme="sunset"] {
+  --theme-slot-bg: #7c2d12;
+  --theme-slot-found-bg: #9a3d1a;
+  --theme-slot-text: #fff0e6;
+  --theme-slot-border: #fb923c;
+  --theme-slot-found-text: #ffffff;
+}
+
+/* ─── Midnight Gold (premium shimmer) ──────────────────────────────────── */
+[data-theme="midnight-gold"] {
+  --theme-slot-bg: #0a0a0a;
+  --theme-slot-found-bg: #1a1200;
+  --theme-slot-text: #ffd700;
+  --theme-slot-border: #b8860b;
+  --theme-slot-found-text: #ffd700;
+}
+
+[data-theme="midnight-gold"] .word-slot.found {
+  background: linear-gradient(
+    135deg,
+    #1a1200 0%,
+    #2a2000 40%,
+    #1a1200 60%,
+    #2a2000 100%
+  );
+  animation: gold-shimmer 2.5s ease-in-out infinite;
+}
+
+@keyframes gold-shimmer {
+  0%   { box-shadow: 0 0 4px rgba(255, 215, 0, 0.2); }
+  50%  { box-shadow: 0 0 12px rgba(255, 215, 0, 0.6); }
+  100% { box-shadow: 0 0 4px rgba(255, 215, 0, 0.2); }
+}
+
+/* ─── Holographic (premium rainbow shimmer) ─────────────────────────────── */
+[data-theme="holographic"] {
+  --theme-slot-bg: #0d0d1a;
+  --theme-slot-found-bg: #1a0d2e;
+  --theme-slot-text: #e0e0ff;
+  --theme-slot-border: #7b68ee;
+  --theme-slot-found-text: #ffffff;
+}
+
+[data-theme="holographic"] .word-slot.found {
+  animation: holo-shimmer 3s linear infinite;
+}
+
+@keyframes holo-shimmer {
+  0%   { filter: hue-rotate(0deg) brightness(1.1); }
+  100% { filter: hue-rotate(360deg) brightness(1.1); }
+}
