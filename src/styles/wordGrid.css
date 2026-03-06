@@ -5,6 +5,19 @@
   gap: 6px;
 }
 
+.word-columns {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+  align-items: start;
+}
+
+.word-column {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
 .word-group {
   display: grid;
   grid-template-columns: 1fr 1fr;

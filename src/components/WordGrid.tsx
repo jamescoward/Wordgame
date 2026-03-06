@@ -16,30 +16,29 @@ export default function WordGrid({
   revealedHints = [],
   revealedWords = [],
 }: WordGridProps) {
-  // Group puzzle words by length
-  const byLength = new Map<number, string[]>()
-  for (const word of words) {
-    const group = byLength.get(word.length) ?? []
-    group.push(word)
-    byLength.set(word.length, group)
-  }
-  const lengths = [...byLength.keys()].sort((a, b) => a - b)
+  // Sort words by length, then alphabetically
+  const sorted = [...words].sort((a, b) => a.length - b.length || a.localeCompare(b))
+
+  const mid = Math.ceil(sorted.length / 2)
+  const leftCol = sorted.slice(0, mid)
+  const rightCol = sorted.slice(mid)
+
+  const renderSlot = (word: string) => (
+    <WordSlot
+      key={word}
+      word={word}
+      found={foundWords.includes(word)}
+      letterHinted={revealedHints.includes(word) && !revealedWords.includes(word)}
+      fullyRevealed={revealedWords.includes(word)}
+    />
+  )
 
   return (
     <div className="word-grid" data-testid="word-grid">
-      {lengths.map(len => (
-        <div key={len} className="word-group">
-          {byLength.get(len)!.map(word => (
-            <WordSlot
-              key={word}
-              word={word}
-              found={foundWords.includes(word)}
-              letterHinted={revealedHints.includes(word) && !revealedWords.includes(word)}
-              fullyRevealed={revealedWords.includes(word)}
-            />
-          ))}
-        </div>
-      ))}
+      <div className="word-columns">
+        <div className="word-column">{leftCol.map(renderSlot)}</div>
+        <div className="word-column">{rightCol.map(renderSlot)}</div>
+      </div>
 
       {bonusWords.length > 0 && (
         <div className="bonus-words-section">
