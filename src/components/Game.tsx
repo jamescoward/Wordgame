@@ -67,6 +67,7 @@ export default function Game() {
   const [feedbackExtra, setFeedbackExtra] = useState<string>('')
   const [isShaking, setIsShaking] = useState(false)
   const [dailyBonusClaimed, setDailyBonusClaimed] = useState(false)
+  const [showBonusModal, setShowBonusModal] = useState(false)
   const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   // Shuffle letters on first render so the wheel doesn't reveal word order
@@ -218,8 +219,21 @@ export default function Game() {
             </div>
           )}
         </div>
-        <div className="game-score" data-testid="score">
-          ⭐ {state.score}
+        <div className="header-right">
+          <div className="game-score" data-testid="score">
+            ⭐ {state.score}
+          </div>
+          <button
+            className="bonus-words-btn"
+            onClick={() => setShowBonusModal(true)}
+            aria-label="View bonus words"
+            data-testid="bonus-words-btn"
+          >
+            🎁
+            {state.bonusWords.length > 0 && (
+              <span className="bonus-words-count">{state.bonusWords.length}</span>
+            )}
+          </button>
         </div>
       </header>
 
@@ -240,7 +254,6 @@ export default function Game() {
         <WordGrid
           words={state.puzzle.words}
           foundWords={state.foundWords}
-          bonusWords={state.bonusWords}
           revealedHints={state.revealedHints}
           revealedWords={state.revealedWords}
         />
@@ -248,15 +261,25 @@ export default function Game() {
 
       {/* Letter wheel flanked by power-up buttons */}
       <footer className="game-footer">
-        <button
-          className={`powerup-btn hint-btn${canAffordHint ? '' : ' powerup-disabled'}`}
-          onClick={handleHint}
-          disabled={!canAffordHint || isPuzzleComplete}
-          data-testid="hint-btn"
-          aria-label={`Letter hint — costs ${HINT_COST} stars`}
-        >
-          💡<span className="powerup-cost">{HINT_COST}⭐</span>
-        </button>
+        <div className="powerup-left">
+          <button
+            className="powerup-btn shuffle-btn"
+            onClick={shuffleWheel}
+            aria-label="Shuffle letters"
+            data-testid="shuffle-btn"
+          >
+            ↺
+          </button>
+          <button
+            className={`powerup-btn hint-btn${canAffordHint ? '' : ' powerup-disabled'}`}
+            onClick={handleHint}
+            disabled={!canAffordHint || isPuzzleComplete}
+            data-testid="hint-btn"
+            aria-label={`Letter hint — costs ${HINT_COST} stars`}
+          >
+            💡<span className="powerup-cost">{HINT_COST}⭐</span>
+          </button>
+        </div>
         <LetterWheel
           letters={state.puzzle.letters}
           selectedIndices={state.selectedIndices}
@@ -264,7 +287,6 @@ export default function Game() {
           onUnwindTo={unwindTo}
           onSubmit={handleSubmit}
           onClearInput={clearInput}
-          onShuffle={shuffleWheel}
           currentWord={state.currentInput.join('')}
           isShaking={isShaking}
         />
@@ -311,6 +333,38 @@ export default function Game() {
           <button className="next-btn" onClick={handleNextPuzzle}>
             Next Puzzle →
           </button>
+        </div>
+      )}
+
+      {/* Bonus words modal */}
+      {showBonusModal && (
+        <div
+          className="bonus-modal-overlay"
+          onClick={() => setShowBonusModal(false)}
+          data-testid="bonus-modal"
+        >
+          <div className="bonus-modal" onClick={e => e.stopPropagation()}>
+            <div className="bonus-modal-header">
+              <h3>🎁 Bonus Words</h3>
+              <button
+                className="bonus-modal-close"
+                onClick={() => setShowBonusModal(false)}
+                aria-label="Close"
+              >
+                ✕
+              </button>
+            </div>
+            {state.bonusWords.length === 0 ? (
+              <p className="bonus-modal-empty">No bonus words found yet.<br />Keep playing!</p>
+            ) : (
+              <div className="bonus-modal-words">
+                {state.bonusWords.map(word => (
+                  <span key={word} className="bonus-modal-word">{word}</span>
+                ))}
+              </div>
+            )}
+            <p className="bonus-modal-tip">Bonus words are valid words not in the puzzle list. Each earns +1⭐</p>
+          </div>
         </div>
       )}
     </div>

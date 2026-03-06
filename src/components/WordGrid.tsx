@@ -4,7 +4,6 @@ import '../styles/wordGrid.css'
 interface WordGridProps {
   words: string[]
   foundWords: string[]
-  bonusWords?: string[]
   revealedHints?: string[]   // words with first letter shown
   revealedWords?: string[]   // words fully revealed
 }
@@ -12,7 +11,6 @@ interface WordGridProps {
 export default function WordGrid({
   words,
   foundWords,
-  bonusWords = [],
   revealedHints = [],
   revealedWords = [],
 }: WordGridProps) {
@@ -40,16 +38,6 @@ export default function WordGrid({
         <div className="word-column">{rightCol.map(renderSlot)}</div>
       </div>
 
-      {bonusWords.length > 0 && (
-        <div className="bonus-words-section">
-          <div className="bonus-words-label">Bonus Words</div>
-          <div className="word-group">
-            {bonusWords.map(word => (
-              <WordSlot key={word} word={word} found={true} />
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   )
 }
