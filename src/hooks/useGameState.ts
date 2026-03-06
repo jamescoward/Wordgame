@@ -1,7 +1,15 @@
 import { useReducer, useCallback } from 'react'
 import type { Puzzle, GameState, GameAction } from '../types'
+import { isValidWord, canFormWord } from '../utils/dictionary'
 
-const INITIAL_HINTS = 3
+// Star costs for power-ups
+export const HINT_COST = 5       // Letter reveal: shows first hidden letter of a word
+export const REVEAL_COST = 15    // Word reveal: fully reveals a word
+
+// Completion bonuses
+export const BONUS_COMPLETE = 10   // Awarded for finishing the puzzle
+export const BONUS_NO_REVEAL = 15  // Awarded when no reveals were purchased
+export const BONUS_FLAWLESS = 20   // Awarded when no invalid words were submitted
 
 // Point values by word length
 function scoreForWord(word: string): number {
@@ -25,14 +33,18 @@ function shuffleArray<T>(arr: T[]): T[] {
 
 function createInitialState(puzzle: Puzzle): GameState {
   return {
-    puzzle: { ...puzzle, letters: shuffleArray(puzzle.letters) },
+    puzzle,              // Letters start in original order; call shuffleWheel() to randomise
     foundWords: [],
+    bonusWords: [],
     currentInput: [],
     selectedIndices: [],
     score: 0,
     puzzleIndex: 0,
-    hints: INITIAL_HINTS,
     revealedHints: [],
+    revealedWords: [],
+    hadInvalidAttempt: false,
+    revealUsed: false,
+    bonusAwarded: false,
   }
 }
 
@@ -76,12 +88,26 @@ function gameReducer(state: GameState, action: GameAction): GameState {
       return state // Handled in hook with new puzzle
 
     case 'USE_HINT': {
-      if (state.hints <= 0) return state
       if (state.revealedHints.includes(action.word)) return state
       return {
         ...state,
-        hints: state.hints - 1,
+        score: state.score - HINT_COST,
         revealedHints: [...state.revealedHints, action.word],
+        revealUsed: true,
+      }
+    }
+
+    case 'USE_REVEAL': {
+      if (state.revealedWords.includes(action.word)) return state
+      return {
+        ...state,
+        score: state.score - REVEAL_COST,
+        revealedWords: [...state.revealedWords, action.word],
+        // Also count as revealedHints so WordGrid can show the word
+        revealedHints: state.revealedHints.includes(action.word)
+          ? state.revealedHints
+          : [...state.revealedHints, action.word],
+        revealUsed: true,
       }
     }
 
@@ -93,18 +119,27 @@ function gameReducer(state: GameState, action: GameAction): GameState {
   }
 }
 
-export type SubmitResult = 'found' | 'already_found' | 'invalid'
-export type HintResult = 'hinted' | 'no_hints' | 'no_words'
+export type SubmitResult =
+  | 'found'
+  | 'bonus_word'
+  | 'already_found'
+  | 'invalid'
+
+export type HintResult = 'hinted' | 'no_stars' | 'no_words'
+export type RevealResult = 'revealed' | 'no_stars' | 'no_words'
 
 export interface UseGameStateReturn {
   state: GameState
+  dispatch: (action: GameAction) => void
   selectLetter: (index: number) => void
   unwindTo: (index: number) => void
   clearInput: () => void
   submitWord: () => SubmitResult
   shuffleWheel: () => void
   useHint: () => HintResult
+  useReveal: () => RevealResult
   isPuzzleComplete: boolean
+  isFlawless: boolean
 }
 
 export function useGameState(puzzle: Puzzle): UseGameStateReturn {
@@ -126,18 +161,58 @@ export function useGameState(puzzle: Puzzle): UseGameStateReturn {
     const word = state.currentInput.join('')
     dispatch({ type: 'CLEAR_INPUT' })
 
-    if (state.foundWords.includes(word)) return 'already_found'
-    if (!state.puzzle.words.includes(word)) return 'invalid'
+    // Already found (puzzle word or bonus word)
+    if (state.foundWords.includes(word) || state.bonusWords.includes(word)) {
+      return 'already_found'
+    }
 
-    // Valid new word — update state
-    dispatch({
-      type: 'LOAD_STATE',
-      state: {
-        foundWords: [...state.foundWords, word],
-        score: state.score + scoreForWord(word),
-      },
-    })
-    return 'found'
+    // Valid puzzle word
+    if (state.puzzle.words.includes(word)) {
+      const newFoundWords = [...state.foundWords, word]
+      const newScore = state.score + scoreForWord(word)
+      const allFound =
+        state.puzzle.words.length > 0 &&
+        state.puzzle.words.every(w => newFoundWords.includes(w))
+
+      let bonusScore = 0
+      if (allFound && !state.bonusAwarded) {
+        bonusScore += BONUS_COMPLETE
+        if (!state.revealUsed) bonusScore += BONUS_NO_REVEAL
+        if (!state.hadInvalidAttempt) bonusScore += BONUS_FLAWLESS
+      }
+
+      dispatch({
+        type: 'LOAD_STATE',
+        state: {
+          foundWords: newFoundWords,
+          score: newScore + bonusScore,
+          bonusAwarded: allFound ? true : state.bonusAwarded,
+        },
+      })
+      return 'found'
+    }
+
+    // Valid English word (bonus word) — must be formable from puzzle letters
+    if (
+      word.length >= 3 &&
+      isValidWord(word) &&
+      canFormWord(word, state.puzzle.letters)
+    ) {
+      dispatch({
+        type: 'LOAD_STATE',
+        state: {
+          bonusWords: [...state.bonusWords, word],
+          score: state.score + 3,
+        },
+      })
+      return 'bonus_word'
+    }
+
+    // Invalid — track the attempt
+    if (!state.hadInvalidAttempt) {
+      dispatch({ type: 'LOAD_STATE', state: { hadInvalidAttempt: true } })
+    }
+    return 'invalid'
   }, [state])
 
   const shuffleWheel = useCallback(() => {
@@ -145,15 +220,14 @@ export function useGameState(puzzle: Puzzle): UseGameStateReturn {
   }, [])
 
   const useHint = useCallback((): HintResult => {
-    if (state.hints <= 0) return 'no_hints'
+    if (state.score < HINT_COST) return 'no_stars'
 
-    // Find an unfound, un-hinted word to reveal
+    // Find an unfound, un-hinted word to reveal one letter of
     const candidates = state.puzzle.words.filter(
       w => !state.foundWords.includes(w) && !state.revealedHints.includes(w)
     )
     if (candidates.length === 0) return 'no_words'
 
-    // Pick the shortest candidate to give the smallest hint
     const target = candidates.reduce((shortest, w) =>
       w.length < shortest.length ? w : shortest
     )
@@ -161,9 +235,38 @@ export function useGameState(puzzle: Puzzle): UseGameStateReturn {
     return 'hinted'
   }, [state])
 
+  const useReveal = useCallback((): RevealResult => {
+    if (state.score < REVEAL_COST) return 'no_stars'
+
+    const candidates = state.puzzle.words.filter(
+      w => !state.foundWords.includes(w) && !state.revealedWords.includes(w)
+    )
+    if (candidates.length === 0) return 'no_words'
+
+    const target = candidates.reduce((shortest, w) =>
+      w.length < shortest.length ? w : shortest
+    )
+    dispatch({ type: 'USE_REVEAL', word: target })
+    return 'revealed'
+  }, [state])
+
   const isPuzzleComplete =
     state.puzzle.words.length > 0 &&
     state.puzzle.words.every(w => state.foundWords.includes(w))
 
-  return { state, selectLetter, unwindTo, clearInput, submitWord, shuffleWheel, useHint, isPuzzleComplete }
+  const isFlawless = !state.hadInvalidAttempt
+
+  return {
+    state,
+    dispatch,
+    selectLetter,
+    unwindTo,
+    clearInput,
+    submitWord,
+    shuffleWheel,
+    useHint,
+    useReveal,
+    isPuzzleComplete,
+    isFlawless,
+  }
 }

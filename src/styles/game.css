@@ -15,48 +15,79 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 12px 20px;
+  padding: 10px 16px;
   background: var(--color-surface);
   border-bottom: 1px solid var(--color-surface2);
   flex-shrink: 0;
 }
 
+.game-title-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .game-title {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--color-accent2);
   letter-spacing: 0.05em;
   text-transform: uppercase;
 }
 
-.game-header-right {
-  display: flex;
-  align-items: center;
-  gap: 12px;
+.streak-badge {
+  background: linear-gradient(135deg, #ff6b35, #f7931e);
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 12px;
+  letter-spacing: 0.02em;
+  animation: streakPulse 2s infinite;
+}
+
+@keyframes streakPulse {
+  0%, 100% { transform: scale(1); }
+  50%       { transform: scale(1.05); }
 }
 
 .game-score {
   font-size: 1.1rem;
-  font-weight: 600;
-  color: var(--color-accent2);
+  font-weight: 700;
+  color: #f7c948;
+  letter-spacing: 0.02em;
 }
 
-/* ─── Hint button ───────────────────────────────────────── */
-.hint-btn {
-  background: #f39c12;
-  color: #1a1a2e;
+/* ─── Power-up bar ──────────────────────────────────────── */
+.powerup-bar {
+  display: flex;
+  gap: 8px;
+  padding: 6px 16px;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-surface2);
+  flex-shrink: 0;
+  justify-content: center;
+}
+
+.powerup-btn {
   font-weight: 700;
-  font-size: 0.9rem;
-  padding: 6px 14px;
+  font-size: 0.85rem;
+  padding: 6px 16px;
   border-radius: var(--radius-md);
   min-height: 36px;
+  min-width: 80px;
   transition: opacity 0.15s, transform 0.1s;
   border: none;
+  cursor: pointer;
 }
 
-.hint-btn:hover:not(:disabled) { opacity: 0.85; }
-.hint-btn:active:not(:disabled) { transform: scale(0.95); }
-.hint-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+.hint-btn  { background: #f39c12; color: #1a1a2e; }
+.reveal-btn { background: #8e44ad; color: #fff; }
+
+.powerup-btn:hover:not(:disabled)  { opacity: 0.85; }
+.powerup-btn:active:not(:disabled) { transform: scale(0.95); }
+.powerup-btn:disabled,
+.powerup-btn.powerup-disabled { opacity: 0.35; cursor: not-allowed; }
 
 /* ─── Main scroll area (word grid) ─────────────────────── */
 .game-main {
@@ -95,12 +126,16 @@
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
-.feedback-found      { background: var(--color-found);    color: #fff; }
+.feedback-found        { background: var(--color-found);    color: #fff; }
+.feedback-bonus_word   { background: #f7c948; color: #1a1a2e; font-weight: 800; }
 .feedback-already_found { background: var(--color-surface2); color: var(--color-text-muted); }
-.feedback-invalid    { background: var(--color-accent);   color: #fff; }
-.feedback-complete   { background: var(--color-accent2);  color: #1a1a2e; font-size: 1.1rem; }
-.feedback-hinted     { background: #f39c12;               color: #1a1a2e; }
-.feedback-no_hints   { background: var(--color-surface2); color: var(--color-text-muted); }
+.feedback-invalid      { background: var(--color-accent);   color: #fff; }
+.feedback-complete     { background: var(--color-accent2);  color: #1a1a2e; font-size: 1.1rem; }
+.feedback-hinted       { background: #f39c12;               color: #1a1a2e; }
+.feedback-revealed     { background: #8e44ad;               color: #fff; }
+.feedback-no_stars     { background: var(--color-accent);   color: #fff; }
+.feedback-no_words     { background: var(--color-surface2); color: var(--color-text-muted); }
+.feedback-daily_bonus  { background: linear-gradient(135deg, #ff6b35, #f7931e); color: #fff; font-size: 1rem; }
 
 /* ─── Complete overlay ──────────────────────────────────── */
 .complete-overlay {
@@ -161,8 +196,37 @@
 }
 
 .complete-score {
+  color: var(--color-accent2);
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+}
+
+.flawless-msg {
+  color: #f7c948;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+/* ─── Completion bonus breakdown ─────────────────────────── */
+.bonus-breakdown {
+  background: rgba(255,255,255,0.05);
+  border-radius: var(--radius-md);
+  padding: 10px 16px;
+  margin-bottom: 16px;
+  text-align: left;
+}
+
+.bonus-line {
+  font-size: 0.85rem;
   color: var(--color-text-muted);
-  margin-bottom: 24px;
+  padding: 2px 0;
+}
+
+.bonus-flawless {
+  color: #f7c948;
+  font-weight: 700;
 }
 
 /* ─── Next puzzle bar / button ──────────────────────────── */
