@@ -7,9 +7,9 @@ export const HINT_COST = 5       // Letter reveal: shows first hidden letter of 
 export const REVEAL_COST = 15    // Word reveal: fully reveals a word
 
 // Completion bonuses
-export const BONUS_COMPLETE = 10   // Awarded for finishing the puzzle
-export const BONUS_NO_REVEAL = 15  // Awarded when no reveals were purchased
-export const BONUS_FLAWLESS = 20   // Awarded when no invalid words were submitted
+export const BONUS_COMPLETE = 5    // Awarded for finishing the puzzle
+export const BONUS_NO_REVEAL = 5   // Awarded when no reveals were purchased
+export const BONUS_FLAWLESS = 10   // Awarded when no invalid words were submitted
 
 // Point values by word length
 function scoreForWord(word: string): number {
@@ -202,7 +202,7 @@ export function useGameState(puzzle: Puzzle): UseGameStateReturn {
         type: 'LOAD_STATE',
         state: {
           bonusWords: [...state.bonusWords, word],
-          score: state.score + 3,
+          score: state.score + 1,
         },
       })
       return 'bonus_word'

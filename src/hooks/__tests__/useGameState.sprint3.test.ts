@@ -3,14 +3,14 @@
  *
  * Covers:
  *  - Star-based hint system (hints cost stars)
- *  - Bonus word detection (valid English word not in puzzle list → +3 stars)
- *  - Flawless round bonus (no invalid attempts → +20 stars at completion)
- *  - Puzzle completion bonuses (+10 always, +15 if no reveals used)
+ *  - Bonus word detection (valid English word not in puzzle list → +1 star)
+ *  - Flawless round bonus (no invalid attempts → +10 stars at completion)
+ *  - Puzzle completion bonuses (+5 always, +5 if no reveals used)
  *  - hadInvalidAttempt tracking
  */
 import { describe, it, expect } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
-import { useGameState } from '../useGameState'
+import { useGameState, BONUS_COMPLETE, BONUS_NO_REVEAL, BONUS_FLAWLESS } from '../useGameState'
 import type { Puzzle } from '../../types'
 
 // CRAMMED puzzle — letters C(0) R(1) A(2) M(3) M(4) E(5) D(6)
@@ -58,11 +58,11 @@ describe('bonus word detection', () => {
     expect(submitResult).toBe('bonus_word')
   })
 
-  it('awards 3 stars for a bonus word', () => {
+  it('awards 1 star for a bonus word', () => {
     const { result } = renderHook(() => useGameState(TEST_PUZZLE))
     spellWord(result, 'ARM', TEST_PUZZLE)
     act(() => result.current.submitWord())
-    expect(result.current.state.score).toBe(3)
+    expect(result.current.state.score).toBe(1)
   })
 
   it('tracks bonus words in bonusWords array', () => {
@@ -82,8 +82,8 @@ describe('bonus word detection', () => {
     let secondResult: string | undefined
     act(() => { secondResult = result.current.submitWord() })
     expect(secondResult).toBe('already_found')
-    // Score should still be 3, not 6
-    expect(result.current.state.score).toBe(3)
+    // Score should still be 1, not 2
+    expect(result.current.state.score).toBe(1)
   })
 
   it('still returns "invalid" for a nonsense word not in dictionary', () => {
@@ -136,11 +136,11 @@ describe('puzzle completion bonuses', () => {
     act(() => result.current.submitWord())
     spellWord(result, 'CAT', MINI_PUZZLE)
     act(() => result.current.submitWord())
-    // ACT(1) + CAT(1) + complete(10) + no-reveal(15) + flawless(20) = 47
-    expect(result.current.state.score).toBe(47)
+    // ACT(1) + CAT(1) + complete(BONUS_COMPLETE) + no-reveal(BONUS_NO_REVEAL) + flawless(BONUS_FLAWLESS)
+    expect(result.current.state.score).toBe(2 + BONUS_COMPLETE + BONUS_NO_REVEAL + BONUS_FLAWLESS)
   })
 
-  it('awards +10 completion but NOT flawless when there was an invalid attempt', () => {
+  it('awards +complete bonus but NOT flawless when there was an invalid attempt', () => {
     const { result } = renderHook(() => useGameState(MINI_PUZZLE))
     // Make one invalid attempt first
     act(() => result.current.selectLetter(0)) // 'C' alone — not a word
@@ -150,11 +150,11 @@ describe('puzzle completion bonuses', () => {
     act(() => result.current.submitWord())
     spellWord(result, 'CAT', MINI_PUZZLE)
     act(() => result.current.submitWord())
-    // ACT(1) + CAT(1) + complete(10) + no-reveal(15) — NO flawless(20)
-    expect(result.current.state.score).toBe(27)
+    // ACT(1) + CAT(1) + complete(BONUS_COMPLETE) + no-reveal(BONUS_NO_REVEAL) — NO flawless
+    expect(result.current.state.score).toBe(2 + BONUS_COMPLETE + BONUS_NO_REVEAL)
   })
 
-  it('awards +15 no-reveal bonus when completed without any reveals', () => {
+  it('awards no-reveal bonus when completed without any reveals', () => {
     const { result } = renderHook(() => useGameState(MINI_PUZZLE))
     // Make an invalid attempt to block flawless bonus, so we can isolate no-reveal
     act(() => result.current.selectLetter(0))
@@ -163,8 +163,8 @@ describe('puzzle completion bonuses', () => {
     act(() => result.current.submitWord())
     spellWord(result, 'CAT', MINI_PUZZLE)
     act(() => result.current.submitWord())
-    // ACT(1) + CAT(1) + complete(10) + no-reveal(15) = 27 (no flawless)
-    expect(result.current.state.score).toBe(27)
+    // ACT(1) + CAT(1) + complete(BONUS_COMPLETE) + no-reveal(BONUS_NO_REVEAL) (no flawless)
+    expect(result.current.state.score).toBe(2 + BONUS_COMPLETE + BONUS_NO_REVEAL)
   })
 
   it('does NOT award no-hints bonus when reveals were used', () => {
@@ -202,15 +202,15 @@ describe('puzzle completion bonuses', () => {
 // ─── Flawless round bonus ────────────────────────────────────────────────────
 
 describe('flawless round bonus (no invalid attempts)', () => {
-  it('awards +20 bonus stars when puzzle completed with no invalid attempts', () => {
+  it('awards flawless bonus stars when puzzle completed with no invalid attempts', () => {
     const { result } = renderHook(() => useGameState(MINI_PUZZLE))
     // Complete without any invalid submissions
     spellWord(result, 'ACT', MINI_PUZZLE)
     act(() => result.current.submitWord())
     spellWord(result, 'CAT', MINI_PUZZLE)
     act(() => result.current.submitWord())
-    // ACT(1) + CAT(1) + complete(10) + no-reveals(15) + flawless(20) = 47
-    expect(result.current.state.score).toBe(47)
+    // ACT(1) + CAT(1) + complete(BONUS_COMPLETE) + no-reveals(BONUS_NO_REVEAL) + flawless(BONUS_FLAWLESS)
+    expect(result.current.state.score).toBe(2 + BONUS_COMPLETE + BONUS_NO_REVEAL + BONUS_FLAWLESS)
   })
 
   it('does NOT award flawless bonus when there was an invalid attempt', () => {
@@ -223,8 +223,8 @@ describe('flawless round bonus (no invalid attempts)', () => {
     act(() => result.current.submitWord())
     spellWord(result, 'CAT', MINI_PUZZLE)
     act(() => result.current.submitWord())
-    // ACT(1) + CAT(1) + complete(10) + no-reveals(15) = 27, NO flawless
-    expect(result.current.state.score).toBe(27)
+    // ACT(1) + CAT(1) + complete(BONUS_COMPLETE) + no-reveals(BONUS_NO_REVEAL) = no flawless
+    expect(result.current.state.score).toBe(2 + BONUS_COMPLETE + BONUS_NO_REVEAL)
   })
 
   it('exposes isFlawless on the hook when puzzle is complete with no invalid attempts', () => {

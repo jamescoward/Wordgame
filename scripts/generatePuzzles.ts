@@ -2,6 +2,7 @@ import { writeFileSync } from 'fs'
 import { resolve } from 'path'
 import { WORD_LIST } from './wordlist.ts'
 import type { Puzzle } from '../src/types.ts'
+import { selectPuzzleWords, MIN_PUZZLE_WORDS } from '../src/utils/selectPuzzleWords.ts'
 
 // Deduplicate and normalise word list
 const ALL_WORDS = new Set(WORD_LIST.map(w => w.toUpperCase()))
@@ -35,36 +36,57 @@ function findSubWords(letters: string[]): string[] {
   return results.sort((a, b) => a.length - b.length || a.localeCompare(b))
 }
 
+/** Fisher-Yates shuffle — returns a new shuffled array */
+function shuffle<T>(arr: T[]): T[] {
+  const out = [...arr]
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[out[i], out[j]] = [out[j], out[i]]
+  }
+  return out
+}
+
 /**
  * Generate puzzles from the word list.
- * Main words are 6-8 letters; keep puzzles with 8-20 valid sub-words.
+ * Main words are 6-9 letters; keep puzzles with MIN_PUZZLE_WORDS–MAX_PUZZLE_WORDS valid sub-words.
  */
 function generatePuzzles(count: number): Puzzle[] {
-  // Candidate main words: 6-8 letters
-  const candidates = WORD_LIST
-    .map(w => w.toUpperCase())
-    .filter(w => w.length >= 6 && w.length <= 8)
-    // Deduplicate
-    .filter((w, i, arr) => arr.indexOf(w) === i)
+  // Candidate main words: 6-9 letters, shuffled for variety across lengths
+  const candidates = shuffle(
+    WORD_LIST
+      .map(w => w.toUpperCase())
+      .filter(w => w.length >= 6 && w.length <= 9)
+      .filter((w, i, arr) => arr.indexOf(w) === i) // deduplicate
+  )
 
   const puzzles: Puzzle[] = []
+  const seenLetterSets = new Set<string>()
   let id = 1
 
   for (const mainWord of candidates) {
     if (puzzles.length >= count) break
 
     const letters = mainWord.split('')
-    const subWords = findSubWords(letters)
+    // Skip puzzles with the same letter multiset (same sub-words, different arrangement)
+    const letterKey = [...letters].sort().join('')
+    if (seenLetterSets.has(letterKey)) continue
 
-    // Only keep puzzles where the main word itself is valid AND has 8-20 sub-words
+    const allSubWords = findSubWords(letters)
+
+    // Must be a valid word in the dictionary
     if (!ALL_WORDS.has(mainWord)) continue
-    if (subWords.length < 8 || subWords.length > 20) continue
+    // Must have enough raw sub-words to produce a satisfying puzzle
+    if (allSubWords.length < MIN_PUZZLE_WORDS) continue
 
+    // Cap and balance the sub-word list
+    const words = selectPuzzleWords(allSubWords)
+
+    seenLetterSets.add(letterKey)
     puzzles.push({
       id: id++,
       letters,
       mainWord,
-      words: subWords,
+      words,
     })
   }
 
