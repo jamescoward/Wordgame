@@ -240,7 +240,7 @@ export default function Game() {
 
   const backgroundStyle: React.CSSProperties =
     activeBg && activeBg.id !== 'default' && activeBg.filename
-      ? { backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url(/backgrounds/${activeBg.filename})` }
+      ? { backgroundImage: `linear-gradient(rgba(0,0,0,0.45), rgba(0,0,0,0.45)), url(${import.meta.env.BASE_URL}backgrounds/${activeBg.filename})` }
       : {}
 
   const feedbackMessages: Record<NonNullable<FeedbackKind>, string> = {

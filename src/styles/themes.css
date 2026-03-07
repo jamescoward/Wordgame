@@ -10,6 +10,15 @@
   --theme-slot-found-text: #ffffff;
 }
 
+/* ─── Default (explicit reset — ensures reversion from other themes) ───── */
+[data-theme="default"] {
+  --theme-slot-bg: #0f3460;
+  --theme-slot-found-bg: #1a5c2a;
+  --theme-slot-text: #eaeaea;
+  --theme-slot-border: #f5a623;
+  --theme-slot-found-text: #ffffff;
+}
+
 /* ─── Amethyst ─────────────────────────────────────────────────────────── */
 [data-theme="amethyst"] {
   --theme-slot-bg: #3b1361;

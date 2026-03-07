@@ -106,7 +106,7 @@ export default function Shop({ cosmetics, onClose, onPurchaseSuccess }: ShopProp
                         ) : (
                           <img
                             className="shop-bg-thumb-img"
-                            src={`/backgrounds/${bg.filename}`}
+                            src={`${import.meta.env.BASE_URL}backgrounds/${bg.filename}`}
                             alt={bg.name}
                             onError={e => {
                               const el = e.currentTarget as HTMLImageElement
