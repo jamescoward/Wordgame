@@ -6,7 +6,7 @@
 [data-tooltip]::after {
   content: attr(data-tooltip);
   position: absolute;
-  bottom: calc(100% + 8px);
+  top: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%);
   background: rgba(0, 0, 0, 0.88);
@@ -16,7 +16,6 @@
   line-height: 1.4;
   padding: 5px 9px;
   border-radius: 6px;
-  white-space: nowrap;
   pointer-events: none;
   opacity: 0;
   transition: opacity 0.18s;
@@ -30,6 +29,12 @@
 [data-tooltip]:focus::after,
 [data-tooltip]:active::after {
   opacity: 1;
+}
+
+/* Streak badge has a CSS animation using transform — give it its own
+   stacking context so the tooltip ::after renders above it correctly */
+.streak-badge[data-tooltip] {
+  isolation: isolate;
 }
 
 /* ─── Game container ────────────────────────────────────── */
