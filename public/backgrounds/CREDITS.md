@@ -7,7 +7,7 @@ Images must be manually downloaded and placed here before these backgrounds beco
 |------|-------------|--------------|---------|
 | `forest-canopy.jpg` | Forest Canopy | Sebastian Unrau | https://unsplash.com/@sebastian_unrau |
 | `night-city.jpg` | Night City | Luca Bravo | https://unsplash.com/@lucabravo |
-| `golden-beach.jpg` | Golden Hour Beach | Shana Van Roosbroek | https://unsplash.com/@shanavaro |
+| `golden-hour-beach.jpg` | Golden Hour Beach | Shana Van Roosbroek | https://unsplash.com/@shanavaro |
 | `snowy-mountain.jpg` | Snowy Mountain | Rohit Tandon | https://unsplash.com/@sepoys |
 | `cherry-blossom.jpg` | Cherry Blossom | Manuel Cosentino | https://unsplash.com/@manucosen |
 

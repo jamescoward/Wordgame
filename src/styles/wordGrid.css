@@ -37,24 +37,24 @@
   width: 21px;
   height: 30px;
   flex-shrink: 0;
-  border: 2px solid var(--color-surface2);
+  border: 2px solid var(--theme-slot-border);
   border-radius: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.82rem;
   font-weight: 700;
-  color: var(--color-text);
-  background: var(--color-surface);
+  color: var(--theme-slot-text);
+  background: var(--theme-slot-bg);
   text-transform: uppercase;
   transition: background 0.25s, border-color 0.25s, color 0.25s;
   letter-spacing: 0;
 }
 
 .word-slot.found .letter-box {
-  background: var(--color-found-bg);
-  border-color: var(--color-found);
-  color: #a5d6a7;
+  background: var(--theme-slot-found-bg);
+  border-color: var(--theme-slot-border);
+  color: var(--theme-slot-found-text);
 }
 
 /* Staggered reveal animation for each letter */
