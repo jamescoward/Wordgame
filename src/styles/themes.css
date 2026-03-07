@@ -8,6 +8,10 @@
   --theme-slot-text: #eaeaea;
   --theme-slot-border: #f5a623;
   --theme-slot-found-text: #ffffff;
+  --theme-wheel-btn-bg: #0f3460;
+  --theme-wheel-letter: #e9d8a6;
+  --theme-wheel-letter-sel: #f5a623;
+  --theme-wheel-accent: #f5a623;
 }
 
 /* ─── Default (explicit reset — ensures reversion from other themes) ───── */
@@ -17,6 +21,10 @@
   --theme-slot-text: #eaeaea;
   --theme-slot-border: #f5a623;
   --theme-slot-found-text: #ffffff;
+  --theme-wheel-btn-bg: #0f3460;
+  --theme-wheel-letter: #e9d8a6;
+  --theme-wheel-letter-sel: #f5a623;
+  --theme-wheel-accent: #f5a623;
 }
 
 /* ─── Amethyst ─────────────────────────────────────────────────────────── */
@@ -26,6 +34,10 @@
   --theme-slot-text: #f0e6ff;
   --theme-slot-border: #c084fc;
   --theme-slot-found-text: #ffffff;
+  --theme-wheel-btn-bg: #3b1361;
+  --theme-wheel-letter: #f0e6ff;
+  --theme-wheel-letter-sel: #c084fc;
+  --theme-wheel-accent: #c084fc;
 }
 
 /* ─── Forest ───────────────────────────────────────────────────────────── */
@@ -35,6 +47,10 @@
   --theme-slot-text: #d4f4e2;
   --theme-slot-border: #6ee7b7;
   --theme-slot-found-text: #ffffff;
+  --theme-wheel-btn-bg: #1a3a2a;
+  --theme-wheel-letter: #d4f4e2;
+  --theme-wheel-letter-sel: #6ee7b7;
+  --theme-wheel-accent: #6ee7b7;
 }
 
 /* ─── Sunset ───────────────────────────────────────────────────────────── */
@@ -44,6 +60,10 @@
   --theme-slot-text: #fff0e6;
   --theme-slot-border: #fb923c;
   --theme-slot-found-text: #ffffff;
+  --theme-wheel-btn-bg: #7c2d12;
+  --theme-wheel-letter: #fff0e6;
+  --theme-wheel-letter-sel: #fb923c;
+  --theme-wheel-accent: #fb923c;
 }
 
 /* ─── Midnight Gold (premium shimmer) ──────────────────────────────────── */
@@ -53,6 +73,10 @@
   --theme-slot-text: #ffd700;
   --theme-slot-border: #b8860b;
   --theme-slot-found-text: #ffd700;
+  --theme-wheel-btn-bg: #1a1200;
+  --theme-wheel-letter: #ffd700;
+  --theme-wheel-letter-sel: #b8860b;
+  --theme-wheel-accent: #ffd700;
 }
 
 [data-theme="midnight-gold"] .word-slot.found {
@@ -79,6 +103,10 @@
   --theme-slot-text: #e0e0ff;
   --theme-slot-border: #7b68ee;
   --theme-slot-found-text: #ffffff;
+  --theme-wheel-btn-bg: #1a0d2e;
+  --theme-wheel-letter: #e0e0ff;
+  --theme-wheel-letter-sel: #9f8fff;
+  --theme-wheel-accent: #7b68ee;
 }
 
 [data-theme="holographic"] .word-slot.found {
