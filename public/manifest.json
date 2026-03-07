@@ -1,6 +1,6 @@
 {
-  "name": "Word Game",
-  "short_name": "WordGame",
+  "name": "Unravel",
+  "short_name": "Unravel",
   "description": "Find hidden words within the letter wheel!",
   "start_url": "/",
   "display": "standalone",

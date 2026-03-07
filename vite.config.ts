@@ -9,8 +9,8 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png'],
       manifest: {
-        name: 'Word Game',
-        short_name: 'WordGame',
+        name: 'Unravel',
+        short_name: 'Unravel',
         description: 'Find hidden words within the letters of a longer word',
         theme_color: '#1a1a2e',
         background_color: '#1a1a2e',
