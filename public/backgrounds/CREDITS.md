@@ -5,10 +5,10 @@ Images must be manually downloaded and placed here before these backgrounds beco
 
 | File | Name in Shop | Photographer | Profile |
 |------|-------------|--------------|---------|
-| `forest-canopy.jpg` | Forest Canopy | Patrick Fore | https://unsplash.com/@patrickfore |
+| `forest-canopy.jpg` | Forest Canopy | Sebastian Unrau | https://unsplash.com/@sebastian_unrau |
 | `night-city.jpg` | Night City | Luca Bravo | https://unsplash.com/@lucabravo |
-| `golden-beach.jpg` | Golden Hour Beach | Sean O. | https://unsplash.com/@seantookthese |
-| `snowy-mountain.jpg` | Snowy Mountain | Eberhard Grossgasteiger | https://unsplash.com/@eberhardgross |
+| `golden-beach.jpg` | Golden Hour Beach | Shana Van Roosbroek | https://unsplash.com/@shanavaro |
+| `snowy-mountain.jpg` | Snowy Mountain | Rohit Tandon | https://unsplash.com/@sepoys |
 | `cherry-blossom.jpg` | Cherry Blossom | Manuel Cosentino | https://unsplash.com/@manucosen |
 
 ## Image Specs
