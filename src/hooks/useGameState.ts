@@ -161,12 +161,13 @@ export function useGameState(puzzle: Puzzle): UseGameStateReturn {
     const word = state.currentInput.join('')
     dispatch({ type: 'CLEAR_INPUT' })
 
-    // Already found (puzzle word or bonus word)
-    if (state.foundWords.includes(word) || state.bonusWords.includes(word)) {
+    // Already found as puzzle word
+    if (state.foundWords.includes(word)) {
       return 'already_found'
     }
 
-    // Valid puzzle word
+    // Valid puzzle word — checked before bonusWords so a word carried over as a
+    // bonus from a previous puzzle doesn't block it being found in this puzzle
     if (state.puzzle.words.includes(word)) {
       const newFoundWords = [...state.foundWords, word]
       const newScore = state.score + scoreForWord(word)
@@ -190,6 +191,11 @@ export function useGameState(puzzle: Puzzle): UseGameStateReturn {
         },
       })
       return 'found'
+    }
+
+    // Already found as bonus word
+    if (state.bonusWords.includes(word)) {
+      return 'already_found'
     }
 
     // Valid English word (bonus word) — must be formable from puzzle letters
