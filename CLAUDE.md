@@ -1,4 +1,4 @@
-# Word Game - Agent Instructions
+# Unravel - Agent Instructions
 
 ## What is this?
 A mobile-friendly word game PWA (Progressive Web App) built with React + TypeScript + Vite. Players find shorter words hidden within the letters of a longer word using a circular letter wheel.

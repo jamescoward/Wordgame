@@ -277,15 +277,24 @@ export default function Game() {
       {/* Header */}
       <header className="game-header">
         <div className="game-title-group">
-          <h1 className="game-title">Word Game</h1>
+          <h1 className="game-title">Unravel</h1>
           {streak.streakDays > 0 && (
-            <div className="streak-badge" data-testid="streak-badge">
+            <div
+              className="streak-badge"
+              data-testid="streak-badge"
+              data-tooltip={`${streak.streakDays}-day streak! Keep playing daily to grow it.`}
+              tabIndex={0}
+            >
               🔥{streak.streakDays}
             </div>
           )}
         </div>
         <div className="header-right">
-          <div className="game-score" data-testid="score">
+          <div
+            className="game-score"
+            data-testid="score"
+            data-tooltip="Stars — spend them on hints and reveals"
+          >
             ⭐ {state.score}
           </div>
           {/* Gem counter — tap 7 times for cheat */}
@@ -294,6 +303,7 @@ export default function Game() {
             onClick={handleGemTap}
             aria-label={`Gems: ${cosmetics.state.gems}`}
             data-testid="gem-counter"
+            data-tooltip="Gems — spend in the shop to unlock themes"
           >
             💎 {cosmetics.state.gems}
           </button>
