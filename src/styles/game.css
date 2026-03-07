@@ -62,7 +62,51 @@
 .header-right {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
+}
+
+/* ─── Gem counter button ────────────────────────────────── */
+.gem-counter-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #60d8ff;
+  padding: 4px 6px;
+  border-radius: var(--radius-sm);
+  min-height: 36px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  letter-spacing: 0.02em;
+  transition: background 0.15s;
+  white-space: nowrap;
+}
+
+.gem-counter-btn:hover {
+  background: rgba(96, 216, 255, 0.1);
+}
+
+/* ─── Shop button ────────────────────────────────────────── */
+.shop-btn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 1.3rem;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 50%;
+  transition: transform 0.15s, background 0.15s;
+}
+
+.shop-btn:hover {
+  transform: scale(1.15);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .bonus-words-btn {
@@ -193,6 +237,9 @@
 .feedback-no_stars     { background: var(--color-accent);   color: #fff; }
 .feedback-no_words     { background: var(--color-surface2); color: var(--color-text-muted); }
 .feedback-daily_bonus  { background: linear-gradient(135deg, #ff6b35, #f7931e); color: #fff; font-size: 1rem; }
+.feedback-gem_award    { background: #0ea5e9; color: #fff; }
+.feedback-shop_purchase { background: #7c3aed; color: #fff; font-weight: 700; }
+.feedback-cheat_gems   { background: #dc2626; color: #fff; font-weight: 800; }
 
 /* ─── Complete overlay ──────────────────────────────────── */
 .complete-overlay {
@@ -284,6 +331,26 @@
 .bonus-flawless {
   color: #f7c948;
   font-weight: 700;
+}
+
+.bonus-gems {
+  color: #60d8ff;
+  font-weight: 600;
+}
+
+/* ─── Background attribution badge ─────────────────────── */
+.bg-attribution {
+  position: absolute;
+  bottom: 0;
+  left: 8px;
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.5);
+  pointer-events: none;
+  z-index: 5;
+  padding: 2px 4px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 2px;
+  letter-spacing: 0.02em;
 }
 
 /* ─── Next puzzle bar / button ──────────────────────────── */
